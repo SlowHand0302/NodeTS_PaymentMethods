@@ -5,5 +5,11 @@ export type Product = {
     name: string;
     originalPrice: number;
     sellPrice: number;
-    variants?: string[];
+    variants?: Variants[];
+};
+
+export type Variants = {
+    [key: string]: string | string[] | null | undefined;
+    attribute: string,
+    values: string | string[] | null | undefined,
 };

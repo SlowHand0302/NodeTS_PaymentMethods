@@ -19,6 +19,8 @@ interface ENV {
     GOOGLE_CLIENT_SECRET: string | undefined;
     GOOGLE_MAILER_REFRESH_TOKEN: string | undefined;
     ADMIN_EMAIL_ADDRESS: string | undefined;
+    STRIPE_PUBLICKEY: string | undefined;
+    STRIPE_SECRETKEY: string | undefined;
 }
 
 interface EnvConfig {
@@ -33,6 +35,8 @@ interface EnvConfig {
     GOOGLE_CLIENT_SECRET: string;
     GOOGLE_MAILER_REFRESH_TOKEN: string;
     ADMIN_EMAIL_ADDRESS: string;
+    STRIPE_PUBLICKEY: string;
+    STRIPE_SECRETKEY: string;
 }
 
 // Loading process.env as ENV interface
@@ -49,6 +53,8 @@ export const getConfig = (): ENV => {
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
         ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS,
         GOOGLE_MAILER_REFRESH_TOKEN: process.env.GOOGLE_MAILER_REFRESH_TOKEN,
+        STRIPE_PUBLICKEY: process.env.STRIPE_PUBLICKEY,
+        STRIPE_SECRETKEY: process.env.STRIPE_SECRETKEY,
     };
 };
 

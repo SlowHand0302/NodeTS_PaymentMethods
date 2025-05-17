@@ -16,7 +16,7 @@ class ProductService implements ProductRepo {
     async create(product: Omit<Product, '_id'>): Promise<Product> {
         const newProduct = new ProductModel(product);
         await newProduct.save();
-        return newProduct;
+        return newProduct.toObject();
     }
     async update(product: Partial<Product>): Promise<Product> {
         const updatedProduct = await ProductModel.findByIdAndUpdate(

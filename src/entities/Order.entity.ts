@@ -9,16 +9,16 @@ export enum OrderState {
 export type Order = {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
-    paymentId: Types.ObjectId;
-    items: OrderDetail[];
+    paymentId?: Types.ObjectId;
     totalAmount: number;
     status: OrderState;
     shipping?: string;
-    metadata?: JSON;
+    metadata?: string;
 };
 
 export type OrderDetail = {
+    orderId: Types.ObjectId;
     productId: Types.ObjectId;
     quantity: number;
     price: number;
-};
+};  

@@ -5,8 +5,8 @@ export type StripePaymentIntent = {
     amount: number;
     currency: string;
     paymentMethod: string[];
-    metadata: JSON;
-    shipping?: JSON;
+    metadata: string;
+    shipping?: string;
     receiptEmail?: string;
 };
 

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import createHttpError from 'http-errors';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { LoginTicket, OAuth2Client, TokenPayload } from 'google-auth-library';
@@ -16,53 +16,58 @@ import { OTPEmail } from '../utils/emailTemplates.utils';
 const oAuth2Client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, 'postmessage');
 
 class AuthController {
-    static async signUp(req: Request, res: Response, next: NextFunction) {
+    static signUp: RequestHandler = async (req, res, next) => {
         const user: User = { ...req.body };
         const services = new UserService();
         try {
             const existed = await services.findByEmail(user.email);
             if (existed) {
-                return next(createHttpError(401, 'Existed Email'));
+                next(createHttpError(401, 'Existed Email'));
+                return;
             }
             const createdUser = services.create(user);
-            return res.status(200).json({
+            res.status(200).json({
                 statusCode: 200,
                 msg: 'Create new user success',
                 metadata: { ...createdUser },
             });
+            return;
         } catch (error) {
-            next();
+            next(error);
             throw error;
         }
-    }
+    };
 
     // multi-session authentication
-    static async signIn(req: Request, res: Response, next: NextFunction) {
+    static signIn: RequestHandler = async (req, res, next) => {
         const user: Pick<User, 'email' | 'password'> = { ...req.body };
         const services = new UserService();
         try {
             const existed = await services.findByEmail(user.email);
             if (!existed) {
-                return next(createHttpError(404, 'Not Found User'));
+                next(createHttpError(404, 'Not Found User'));
+                return;
             }
             if (existed?.password !== user.password) {
-                return next(createHttpError(401, 'Wrong password'));
+                next(createHttpError(401, 'Wrong password'));
+                return;
             }
 
             generateToken(res, existed._id);
 
-            return res.status(200).json({
+            res.status(200).json({
                 statusCode: 200,
                 msg: 'Signed In Success',
                 metadata: { ...existed },
             });
+            return;
         } catch (error) {
             next(error);
             throw error;
         }
-    }
+    };
 
-    static async signInWithGoogle(req: Request, res: Response, next: NextFunction) {
+    static signInWithGoogle: RequestHandler = async (req, res, next) => {
         const { code } = req.body;
         const services = new UserService();
 
@@ -91,37 +96,40 @@ class AuthController {
                 });
                 if (user) {
                     generateToken(res, user._id);
-                    return res.status(200).json({
+                    res.status(200).json({
                         statusCode: 200,
                         msg: 'Signed In Success',
                         metadata: { ...user },
                     });
+                    return;
                 }
             }
             if (existed) {
                 generateToken(res, existed._id);
             }
-            return res.status(200).json({
+            res.status(200).json({
                 statusCode: 200,
                 msg: 'Signed In Success',
                 metadata: { ...existed },
             });
+            return;
         } catch (error) {
             next(error);
             throw error;
         }
-    }
+    };
 
-    static async signOut(req: Request, res: Response, next: NextFunction) {
+    static signOut: RequestHandler = async (req, res, next) => {
         res.clearCookie('token');
-        return res.status(200).json({
+        res.status(200).json({
             statusCode: 200,
             msg: 'Signed Out Success',
         });
-    }
+        return;
+    };
 
     // multi-session verify authorization
-    static async verifyAuth(req: Request, res: Response, next: NextFunction) {
+    static verifyAuth: RequestHandler = async (req, res, next) => {
         const token = req.cookies.token;
         if (!token) {
             next(createHttpError(401, 'No credentials provide'));
@@ -137,10 +145,10 @@ class AuthController {
             (req as any)._id = payload._id;
             next();
         });
-    }
+    };
 
     // single-session verify authorization
-    static async verifyAuthSingle(req: Request, res: Response, next: NextFunction) {
+    static verifyAuthSingle: RequestHandler = async (req, res, next) => {
         const token = req.cookies.token;
         if (!token) {
             next(createHttpError(401, 'No credentials provide'));
@@ -156,7 +164,7 @@ class AuthController {
             const user = payload._id;
             const isValid = await validateTokenSingle(user, token);
             console.log(isValid);
-            
+
             if (!isValid) {
                 res.clearCookie('token');
                 next(createHttpError(401, 'Credential Expired'));
@@ -165,15 +173,16 @@ class AuthController {
             (req as any)._id = user;
             next();
         });
-    }
+    };
 
-    static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    static resetPassword: RequestHandler = async (req, res, next) => {
         const { email } = req.body;
         const service = new UserService();
         try {
             const existed = await service.findByEmail(email);
             if (!existed) {
-                return next(createHttpError(404, 'Email Not Existed in System'));
+                next(createHttpError(404, 'Email Not Existed in System'));
+                return;
             }
             const mailOptions: SendMailOptions = {
                 to: email,
@@ -183,37 +192,40 @@ class AuthController {
 
             const result = await sendMail(mailOptions);
             if (result) {
-                return res.status(200).json({
+                res.status(200).json({
                     statusCode: 200,
                     msg: 'OTP Sent',
                     metadata: { ...result },
                 });
+                return;
             }
         } catch (error) {
             next(error);
             throw error;
         }
-    }
+    };
 
-    static async verifyOTP(req: Request, res: Response, next: NextFunction) {
+    static verifyOTP: RequestHandler = async (req, res, next) => {
         const { email, code } = req.body;
         try {
             const isValid = await validateOTP(email, code);
             if (!isValid) {
-                return next(createHttpError(401, 'Wrong or Expired Verification Code. Please resend'));
+                next(createHttpError(401, 'Wrong or Expired Verification Code. Please resend'));
+                return;
             }
 
             generateToken(res, isValid);
 
-            return res.status(200).json({
+            res.status(200).json({
                 statusCode: 200,
                 msg: 'Signin Success',
             });
+            return;
         } catch (error) {
             next(error);
             throw error;
         }
-    }
+    };
 }
 
 export default AuthController;

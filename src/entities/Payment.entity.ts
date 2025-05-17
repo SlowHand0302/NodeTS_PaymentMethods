@@ -20,5 +20,29 @@ export type Payment = {
     status: PaymentState;
     provider?: PaymentProvider;
     trasactionId?: string;
-    metadata?: JSON;
+    metadata?: string;
 };
+
+// models/Order.ts
+// export interface Order {
+//     orderId: string;
+//     customerId: string;
+//     items: { productId: string; quantity: number; price: number }[];
+//     totalAmount: number;
+//     status: 'pending' | 'confirmed' | 'canceled' | 'shipped' | 'completed';
+//     createdAt: Date;
+//     updatedAt: Date;
+// }
+
+// models/Payment.ts
+// export interface Payment {
+//     paymentId: string;
+//     orderId: string;
+//     amount: number;
+//     currency: string;
+//     paymentMethod: string;
+//     status: 'pending' | 'succeeded' | 'failed' | 'refunded';
+//     createdAt: Date;
+//     updatedAt: Date;
+//     transactionId?: string;
+// }

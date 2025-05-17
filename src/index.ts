@@ -17,7 +17,7 @@ const app: Express = server.init();
 database.connect();
 redisServer.connect();
 // validate env variable
-EnvConfig.getSanitzedConfig(EnvConfig.getConfig());
+// EnvConfig.getSanitzedConfig(EnvConfig.getConfig());
 
 app.get('/', (req: Request, res: Response): any => {
     return res.status(200).json({

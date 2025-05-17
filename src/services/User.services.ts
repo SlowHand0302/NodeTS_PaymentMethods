@@ -22,7 +22,7 @@ class UserService implements UserRepo {
     async create(user: Pick<User, 'email' | 'fullname' | 'username'>): Promise<User> {
         const newUser = new UserModel(user);
         await newUser.save();
-        return newUser as User;
+        return newUser.toObject() as User;
     }
     async update(user: Partial<User>): Promise<User> {
         const updatedUser = await UserModel.findByIdAndUpdate(user._id, { ...user }, { returnOriginal: false });
